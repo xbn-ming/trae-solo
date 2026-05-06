@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# 环境变量
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 数据文件
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# 报表输出
+src/report/output/*.xlsx
+src/report/output/*.pdf
+src/report/output/*.html
+
+# 日志
+logs/*.log
+
+# OS
+.DS_Store
+Thumbs.db

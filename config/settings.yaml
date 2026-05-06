@@ -1,0 +1,139 @@
+# 数据源配置
+data_sources:
+  mysql:
+    host: "${MYSQL_HOST:localhost}"
+    port: "${MYSQL_PORT:3306}"
+    database: "${MYSQL_DATABASE:reporting_db}"
+    username: "${MYSQL_USERNAME:root}"
+    password: "${MYSQL_PASSWORD:}"
+    options:
+      charset: utf8mb4
+      connect_timeout: 30
+
+  postgresql:
+    host: "${PG_HOST:localhost}"
+    port: "${PG_PORT:5432}"
+    database: "${PG_DATABASE:reporting_db}"
+    username: "${PG_USERNAME:postgres}"
+    password: "${PG_PASSWORD:}"
+    options:
+      ssl_mode: prefer
+
+  api:
+    base_url: "${API_BASE_URL:https://api.example.com}"
+    timeout: 30
+    retry_count: 3
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+
+  file:
+    base_path: "./data/raw"
+    supported_formats:
+      - csv
+      - excel
+      - json
+      - parquet
+
+# 输出配置
+output:
+  base_path: "./src/report/output"
+  formats:
+    excel:
+      engine: xlsxwriter
+      options:
+        default_date_format: YYYY-MM-DD
+        default_number_format: "#,##0.00"
+    pdf:
+      engine: weasyprint
+      options:
+        page_size: A4
+        margin: 20mm
+    html:
+      engine: jinja2
+      options:
+        autoescape: true
+
+# 报表定义
+reports:
+  daily_sales:
+    name: "每日销售报表"
+    description: "按日统计销售数据"
+    data_source: mysql
+    query: |
+      SELECT 
+        DATE(order_date) as date,
+        product_category,
+        COUNT(*) as order_count,
+        SUM(amount) as total_amount,
+        AVG(amount) as avg_amount
+      FROM orders
+      WHERE order_date >= %s AND order_date < %s
+      GROUP BY DATE(order_date), product_category
+      ORDER BY date DESC, product_category
+    transformations:
+      - type: format
+        column: total_amount
+        format: currency
+      - type: format
+        column: avg_amount
+        format: currency
+      - type: format
+        column: date
+        format: date
+    output_formats:
+      - excel
+      - html
+    schedule: "0 8 * * *"
+
+  monthly_summary:
+    name: "月度汇总报表"
+    description: "按月汇总业务指标"
+    data_source: mysql
+    query: |
+      SELECT 
+        DATE_FORMAT(order_date, '%%Y-%%m') as month,
+        COUNT(DISTINCT customer_id) as active_customers,
+        COUNT(*) as total_orders,
+        SUM(amount) as revenue,
+        SUM(cost) as total_cost,
+        SUM(amount - cost) as profit
+      FROM orders
+      WHERE order_date >= %s AND order_date < %s
+      GROUP BY DATE_FORMAT(order_date, '%%Y-%%m')
+      ORDER BY month DESC
+    transformations:
+      - type: aggregate
+        group_by: month
+      - type: format
+        column: revenue
+        format: currency
+      - type: format
+        column: profit
+        format: currency
+    output_formats:
+      - excel
+      - pdf
+    schedule: "0 9 1 * *"
+
+# 日志配置
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  handlers:
+    console:
+      enabled: true
+      level: INFO
+    file:
+      enabled: true
+      level: DEBUG
+      path: "./logs/reporting.log"
+      max_bytes: 10485760
+      backup_count: 5
+
+# 全局配置
+global:
+  default_date_format: "YYYY-MM-DD"
+  default_timezone: "Asia/Shanghai"
+  batch_size: 1000
+  max_workers: 4

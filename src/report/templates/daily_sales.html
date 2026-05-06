@@ -1,0 +1,18 @@
+{% extends "base_report.html" %}
+
+{% block stats %}
+<div class="stats">
+    <div class="stat-item">
+        <div class="stat-label">总订单数</div>
+        <div class="stat-value">{{ total_orders|default('0') }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-label">总销售额</div>
+        <div class="stat-value">{{ total_amount|default('¥0.00') }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-label">平均订单额</div>
+        <div class="stat-value">{{ avg_amount|default('¥0.00') }}</div>
+    </div>
+</div>
+{% endblock %}

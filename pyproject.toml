@@ -1,0 +1,48 @@
+[project]
+name = "trae-solo-reporting"
+version = "0.1.0"
+description = "报表开发项目"
+requires-python = ">=3.9"
+
+[project.dependencies]
+pandas = ">=2.0.0"
+openpyxl = ">=3.1.0"
+xlsxwriter = ">=3.1.0"
+sqlalchemy = ">=2.0.0"
+pymysql = ">=1.1.0"
+psycopg2-binary = ">=2.9.0"
+requests = ">=2.31.0"
+pyyaml = ">=6.0"
+python-dotenv = ">=1.0.0"
+jinja2 = ">=3.1.0"
+weasyprint = ">=60.0"
+loguru = ">=0.7.0"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
